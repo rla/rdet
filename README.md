@@ -10,6 +10,20 @@ properties:
 
 This library attempts to provide runtime check for these conditions.
 
+## API
+
+Use directive `rdet/1` to annotate predicates that are supposed to be
+deterministic:
+
+    :- rdet(somepred/arity).
+
+When annotated predicate call fails, an error is thrown:
+
+    throw(error(goal_failed(PredicateIndicator, Module:Line)))
+
+Where `Module` refers to module in which the call was made and
+`Line` the location of the call inside the module.
+
 ## Example
 
     :- use_module(library(rdet)).
@@ -114,6 +128,34 @@ with annotations enabled:
 
 These numbers were obtained with SWI 7.3.10 on a 2.4Ghz Q6600 CPU.
 
+## How does it work?
+
+Every annotated predicate call in predicate bodies gets wrapped into
+an if-then-else.
+
+Original code:
+
+    ...
+    somepred(Args),
+    ...
+
+Enhanced code:
+
+    ...
+    (   somepred(Args)
+    ->  true
+    ;   throw(error(goal_failed(...)))),
+
+## Debugging
+
+List of predicate calls that get enhanced:
+
+    rdet:det(PredicateIndicator).
+
+See if some predicate body has enhanced call:
+
+    listing(somemodule:predicate/arity).
+
 ## Why not a static system?
 
 Good luck building a static analysis system that includes the following:
@@ -129,3 +171,31 @@ Good luck building a static analysis system that includes the following:
 
 And has all of this optional: you can combine your code easily
 with 3rd party untyped/unmoded libraries.
+
+## Installation
+
+To install as a package:
+
+    pack_install(rdet).
+
+Tested with SWI-Prolog 7.x but should work with earlier versions too.
+
+## Running tests
+
+In the package root, insert into swipl:
+
+    [tests/tests].
+    run_tests.
+
+Or if you cloned the repo:
+
+    make test
+
+## Bug reports/feature requests
+
+Please send bug reports/feature request through the GitHub
+project [page](https://github.com/rla/rdet).
+
+## License
+
+The MIT license. See the LICENSE file.
