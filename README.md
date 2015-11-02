@@ -112,6 +112,8 @@ with annotations enabled:
     % 1,001,002 inferences, 0.217 CPU in 0.218 seconds (100% CPU, 4613383 Lips)
     Xs = Sorted, Sorted = [1, 2, 3, 4, 5, 6, 7, 8, 9|...].
 
+These numbers were obtained with SWI 7.3.10 on a 2.4Ghz Q6600 CPU.
+
 ## Why not a static system?
 
 Good luck building a static analysis system that includes the following:
