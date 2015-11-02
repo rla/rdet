@@ -19,7 +19,7 @@ deterministic:
 
 When annotated predicate call fails, an error is thrown:
 
-    throw(error(goal_failed(PredicateIndicator, Module:Line)))
+    error(goal_failed(PredicateIndicator, Module:Line))
 
 Where `Module` refers to module in which the call was made and
 `Line` the location of the call inside the module.
