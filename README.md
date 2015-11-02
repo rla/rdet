@@ -96,7 +96,21 @@ Lambda bodies use `call/1` and calls inside there are thus not supported.
 ## Overhead
 
 Overhead on tight code is can be interesting. On the insert_sort
-benchmark it makes the code run about 30% **faster**.
+benchmark it makes the code run about 40%-50% **faster**.
+
+With the `insert/3` fixed and
+
+with annotations commented out:
+
+    ?- findall(X, between(1, 1000, X), Xs), time(insert_sort(Xs, Sorted)).
+    % 1,001,001 inferences, 0.386 CPU in 0.391 seconds (98% CPU, 2596612 Lips)
+    Xs = Sorted, Sorted = [1, 2, 3, 4, 5, 6, 7, 8, 9|...] .
+
+with annotations enabled:
+
+    ?- findall(X, between(1, 1000, X), Xs), time(insert_sort(Xs, Sorted)).
+    % 1,001,002 inferences, 0.217 CPU in 0.218 seconds (100% CPU, 4613383 Lips)
+    Xs = Sorted, Sorted = [1, 2, 3, 4, 5, 6, 7, 8, 9|...].
 
 ## Why not a static system?
 
