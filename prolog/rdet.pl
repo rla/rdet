@@ -24,6 +24,7 @@ is_annotated(Module, Name, Arity):-
     det(Module:(Name//DcgArity)).
 
 user:goal_expansion(In, Out):-
+    nonvar(In),
     functor(In, Name, Arity),
     prolog_load_context(module, Module),
     (   predicate_property(Module:In, imported_from(From))
