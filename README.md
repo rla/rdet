@@ -1,4 +1,4 @@
-# Runtime determinancy checker
+# Runtime determinacy checker
 
 Many predicates dealing with databases and external systems
 are deterministic. Deterministic (det) predicates have the following
@@ -34,6 +34,12 @@ This library attempts to provide runtime check for these conditions.
         X=<Y.
 
     insert(X,[a],[X]).
+
+Running the sorting procedure will throw an error (the last clause of insert/3 is
+intentionally made to fail with numbers):
+
+    ?- insert_sort([2,4,1,3], Sorted).
+    ERROR: Unhandled exception: Goal insert/3 failed in module user on line 11.
 
 ## Compatibility
 
