@@ -35,7 +35,7 @@ This library attempts to provide runtime check for these conditions.
 
     insert(X,[a],[X]).
 
-Running the sorting procedure will throw an error (the last clause of insert/3 is
+Running the sorting procedure will throw an error (the last clause of `insert/3` is
 intentionally made to fail with numbers):
 
     ?- insert_sort([2,4,1,3], Sorted).
