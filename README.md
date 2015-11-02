@@ -10,6 +10,8 @@ properties:
 
 This library attempts to provide runtime check for these conditions.
 
+[![Build Status](https://travis-ci.org/rla/rdet.svg)](https://travis-ci.org/rla/rdet)
+
 ## API
 
 Use directive `rdet/1` to annotate predicates that are supposed to be
