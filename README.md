@@ -1,4 +1,4 @@
-# Runtime determinacy checker
+# Runtime determinacy checker for SWI-Prolog
 
 Many predicates dealing with databases and external systems
 are deterministic. Deterministic (det) predicates have the following
@@ -109,6 +109,10 @@ expansion.
 
 Lambda bodies use `call/1` and calls inside there are thus not supported.
 
+### Optimizations
+
+Supports (tests run and checks are done) with `-O`.
+
 ## Overhead
 
 Overhead on tight code is can be interesting. On the insert_sort
@@ -157,6 +161,26 @@ List of predicate calls that get enhanced:
 See if some predicate body has enhanced call:
 
     listing(somemodule:predicate/arity).
+
+Enable `rdet` debug statements (before loading code to be enhanced):
+
+    ?- debug(rdet).
+    Warning: rdet: no matching debug topic (yet)
+    true.
+
+    ?- [insert].
+    % rdet: adding goal: user:insert_sort/2
+    % rdet: adding goal: user:i_sort/3
+    % rdet: adding goal: user:insert/3
+    % rdet: rewriting goal i_sort/3 at user:7
+    % rdet: rewriting goal insert/3 at user:11
+    % rdet: rewriting goal insert/3 at user:15
+    true.
+
+## Module named user?
+
+Module named `user` usually contains the code that is not explicitly
+put into a module.
 
 ## Why not a static system?
 
