@@ -67,7 +67,7 @@ handle_goal(Goal, Out):-
 % Marks the goal rewritten.
 
 try_rewrite(Goal, ContextModule, Name, Arity, Out):-
-    goal_marker(ContextModule, Marker),
+    goal_marker(ContextModule, Goal, Marker),
     \+ current_predicate(Marker),
     Marker = _:Aux/0,
     compile_aux_clauses([Aux]),
@@ -85,11 +85,15 @@ rewrite_goal(Goal, Name, Arity, ContextModule, Out):-
 % Produces goal marker which is the byte
 % position of the last read term.
 
-goal_marker(ContextModule, Marker):-
+goal_marker(ContextModule, Goal, Marker):-
     prolog_load_context(term_position, Pos),
+    prolog_load_context(variable_names, Vars),
     stream_position_data(byte_count, Pos, Byte),
-    format(atom(Aux), '__aux_det_~w', [Byte]),
-    Marker = ContextModule:Aux/0.
+    with_output_to(string(GoalStr),
+                   write_term(Goal, [variable_names(Vars), quoted(true)])),
+    format(atom(Aux), '__aux_det_~w ~w', [Byte, GoalStr]),
+    Marker = ContextModule:Aux/0,
+    debug(rdet, 'rdet: marker: ~q', [Marker]).
 
 % The actual expansion hook.
 
