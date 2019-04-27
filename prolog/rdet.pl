@@ -32,14 +32,12 @@ is_annotated(Module, Name, Arity):-
     det(Module:(Name//DcgArity)).
 
 % Goal comes with its own module
-% qualifier attached. Use the given
-% module for checking annotation.
+% qualifier attached. This qualifier will be preserved in
+% the newly generated aux predicate name.
 
-handle_goal(Module:Goal, Out):-
-    functor(Goal, Name, Arity), !,
-    is_annotated(Module, Name, Arity),
-    prolog_load_context(module, ContextModule),
-    try_rewrite(Goal, ContextModule, Name, Arity, Out).
+handle_goal(CallModule:Goal, Out):- !,
+    nonvar(Goal),
+    try_rewrite(Goal, CallModule, Out).
 
 % Goal is implemented in some
 % other module and then imported.
@@ -47,53 +45,51 @@ handle_goal(Module:Goal, Out):-
 handle_goal(Goal, Out):-
     prolog_load_context(module, ContextModule),
     predicate_property(ContextModule:Goal,
-        imported_from(FromModule)), !,
-    functor(Goal, Name, Arity),
-    is_annotated(FromModule, Name, Arity),
-    try_rewrite(Goal, ContextModule, Name, Arity, Out).
+        imported_from(CallModule)), !,
+    try_rewrite(Goal, CallModule, Out).
 
 % Other cases. Goal import is not
-% found. Using same term as given.
+% found. Using same term as given. Checking annotation
+% for the current module.
 
 handle_goal(Goal, Out):-
-    functor(Goal, Name, Arity),
     prolog_load_context(module, ContextModule),
-    is_annotated(ContextModule, Name, Arity),
-    try_rewrite(Goal, ContextModule, Name, Arity, Out).
+    try_rewrite(Goal, ContextModule, Out).
 
-% Attempts goal rewrite in the given
-% module. Does not apply rewrite when
-% the goal has been rewritten already.
-% Marks the goal rewritten.
-
-try_rewrite(Goal, ContextModule, Name, Arity, Out):-
-    goal_marker(ContextModule, Goal, Marker),
-    \+ current_predicate(Marker),
-    Marker = _:Aux/0,
-    compile_aux_clauses([Aux]),
-    rewrite_goal(Goal, Name, Arity, ContextModule, Out).
-
-rewrite_goal(Goal, Name, Arity, ContextModule, Out):-
+try_rewrite(Goal, CallModule, Out):-
+    functor(Goal, Name, Arity),
+    is_annotated(CallModule, Name, Arity),
+    aux_name(CallModule, Name, AuxName),
+    ensure_aux(AuxName, Name, Arity),
     prolog_load_context(term_position, Pos),
     stream_position_data(line_count, Pos, Line),
-    At = ContextModule:Line,
-    Functor = Name/Arity,
-    debug(rdet, 'rdet: rewriting goal ~w at ~w', [Functor, At]),
-    Out = ( Goal -> true
-          ; throw(error(goal_failed(Functor, At), _))).
+    prolog_load_context(module, ContextModule),
+    Goal =.. [_|Args],
+    debug(rdet, 'rdet: rewriting goal ~w to ~w at ~w',
+        [Name/Arity, AuxName/Arity, ContextModule:Line]),
+    Out =.. [AuxName|Args].
 
-% Produces goal marker which is the byte
-% position of the last read term.
+% Provides aux name in the currently loaded module
+% for the predicate defined in CallModule.
 
-goal_marker(ContextModule, Goal, Marker):-
-    prolog_load_context(term_position, Pos),
-    prolog_load_context(variable_names, Vars),
-    stream_position_data(byte_count, Pos, Byte),
-    with_output_to(string(GoalStr),
-                   write_term(Goal, [variable_names(Vars), quoted(true)])),
-    format(atom(Aux), '__aux_det_~w ~w', [Byte, GoalStr]),
-    Marker = ContextModule:Aux/0,
-    debug(rdet, 'rdet: marker: ~q', [Marker]).
+aux_name(CallModule, Name, AuxName):-
+    format(atom(AuxName), '__aux_det_~w;~w', [CallModule, Name]).
+
+% Makes sure that there is a generated aux predicate
+% in the currently loaded module.
+
+ensure_aux(AuxName, _, Arity):-
+    prolog_load_context(module, ContextModule),
+    PredicateIndicator = ContextModule:AuxName/Arity,
+    current_predicate(PredicateIndicator), !.
+
+ensure_aux(AuxName, Name, Arity):-
+    length(Args, Arity),
+    Head =.. [AuxName|Args],
+    Goal =.. [Name|Args],
+    Failure = throw(error(goal_failed(Name/Arity), _)),
+    Body = (Goal -> true ; Failure),
+    compile_aux_clauses([Head :- Body]).
 
 % The actual expansion hook.
 
@@ -107,6 +103,9 @@ user:goal_expansion(In, Out):-
 
 prolog:message(error(goal_failed(Name/Arity, Module:Line), _)) -->
     ['Goal ~w failed in module ~w on line ~w.'-[Name/Arity, Module, Line]].
+
+prolog:message(error(goal_failed(Name/Arity), _)) -->
+    ['Goal ~w failed.'-[Name/Arity]].
 
 prolog:message(error(invalid_rdet_pi(PredicateIndicator), _)) -->
     ['Invalid rdet annotation: ~w (not a predicate indicator).'-[PredicateIndicator]].

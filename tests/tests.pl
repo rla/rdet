@@ -9,19 +9,19 @@
 
 test(module_qualifier_implicit):-
     catch(module_implicit, E, true),
-    assertion(E = error(goal_failed(det/0, wrap_module:_), _)).
+    assertion(E = error(goal_failed(det/0), _)).
 
 test(module_qualifier_explicit):-
     catch(module_explicit, E, true),
-    assertion(E = error(goal_failed(det/0, wrap_module:_), _)).
+    assertion(E = error(goal_failed(det/0), _)).
 
 test(module_transitive):-
     catch(module_transitive, E, true),
-    assertion(E = error(goal_failed(module_trans/0, wrap_module:_), _)).
+    assertion(E = error(goal_failed(module_trans/0), _)).
 
 test(dcg):-
     catch(wrap_dcg, E, true),
-    assertion(E = error(goal_failed(one_c/2, wrap_dcg:_), _)).
+    assertion(E = error(goal_failed(one_c/2), _)).
 
 test(dict):-
     \+ wrap_dict.
@@ -31,6 +31,6 @@ test(lambda):-
 
 test(rdf):-
     catch(wrap_rdf, E, true),
-    assertion(E = error(goal_failed(rdf_test/1, wrap_rdf:_), _)).
+    assertion(E = error(goal_failed(rdf_test/1), _)).
 
 :- end_tests(rdet).
