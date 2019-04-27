@@ -15,7 +15,7 @@ rdet(PredicateIndicator):-
     ->  must_be(atom, Module),
         must_be(atom, Name),
         must_be(integer, Arity)
-    ;   throw(error(invalid_rdet_pi(PredicateIndicator)))),
+    ;   throw(error(invalid_rdet_pi(PredicateIndicator), _))),
     (   det(PredicateIndicator)
     ->  true
     ;   debug(rdet, 'rdet: adding goal: ~w', [PredicateIndicator]),
@@ -80,7 +80,7 @@ rewrite_goal(Goal, Name, Arity, ContextModule, Out):-
     Functor = Name/Arity,
     debug(rdet, 'rdet: rewriting goal ~w at ~w', [Functor, At]),
     Out = ( Goal -> true
-          ; throw(error(goal_failed(Functor, At)))).
+          ; throw(error(goal_failed(Functor, At), _))).
 
 % Produces goal marker which is the byte
 % position of the last read term.
@@ -105,8 +105,8 @@ user:goal_expansion(In, Out):-
 
 % Provides messages to terminal.
 
-prolog:message(error(goal_failed(Name/Arity, Module:Line))) -->
+prolog:message(error(goal_failed(Name/Arity, Module:Line), _)) -->
     ['Goal ~w failed in module ~w on line ~w.'-[Name/Arity, Module, Line]].
 
-prolog:message(error(invalid_rdet_pi(PredicateIndicator))) -->
+prolog:message(error(invalid_rdet_pi(PredicateIndicator), _)) -->
     ['Invalid rdet annotation: ~w (not a predicate indicator).'-[PredicateIndicator]].
