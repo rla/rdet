@@ -5,7 +5,7 @@
 :- use_module(library(lambda)).
 :- use_module(prolog/rdet).
 
-:- rdet(fails/0).
+:- rdet(fails/2).
 
 fails(_, _):-
     fail.
