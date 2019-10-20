@@ -4,6 +4,7 @@ remote=sites@rlaanemets.com:/sites/packs.rlaanemets.com/public/rdet
 
 all:
 check:
+install:
 
 package: test
 	tar cvzf $(packfile) prolog tests pack.pl README.md LICENSE
