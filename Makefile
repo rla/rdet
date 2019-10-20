@@ -3,6 +3,7 @@ packfile=rdet-$(version).tgz
 remote=sites@rlaanemets.com:/sites/packs.rlaanemets.com/public/rdet
 
 all:
+check:
 
 package: test
 	tar cvzf $(packfile) prolog tests pack.pl README.md LICENSE
