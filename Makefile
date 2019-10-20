@@ -2,6 +2,8 @@ version:=$(shell swipl -q -s pack -g 'version(V),writeln(V)' -t halt)
 packfile=rdet-$(version).tgz
 remote=sites@rlaanemets.com:/sites/packs.rlaanemets.com/public/rdet
 
+all:
+
 package: test
 	tar cvzf $(packfile) prolog tests pack.pl README.md LICENSE
 
