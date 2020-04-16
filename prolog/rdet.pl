@@ -3,6 +3,9 @@
 ]).
 
 :- use_module(library(error)).
+:- use_module(library(debug), [debug/3]).
+:- use_module(library(prolog_code), [pi_head/2]).
+:- use_module(library(prolog_wrap), [wrap_predicate/4]).
 :- meta_predicate(rdet(:)).
 
 rdet(PredicateIndicator):-
